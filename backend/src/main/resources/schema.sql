@@ -1,0 +1,197 @@
+CREATE DATABASE IF NOT EXISTS text_rpg DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE text_rpg;
+
+CREATE TABLE IF NOT EXISTS sys_user (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  player_id VARCHAR(6) NOT NULL UNIQUE COMMENT '6位唯一玩家ID',
+  username VARCHAR(32) NOT NULL UNIQUE,
+  password VARCHAR(128) NOT NULL,
+  email VARCHAR(128) DEFAULT NULL COMMENT '绑定邮箱',
+  email_verified TINYINT DEFAULT 0 COMMENT '邮箱是否已验证',
+  is_admin TINYINT DEFAULT 0 COMMENT '是否为管理员',
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS game_role (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL UNIQUE,
+  name VARCHAR(32) NOT NULL,
+  job VARCHAR(16) NOT NULL,
+  level INT DEFAULT 1,
+  exp BIGINT DEFAULT 0,
+  hp INT DEFAULT 100,
+  max_hp INT DEFAULT 100,
+  attack INT DEFAULT 10,
+  defense INT DEFAULT 5,
+  speed INT DEFAULT 5,
+  crit_rate DOUBLE DEFAULT 0.05,
+  crit_dmg DOUBLE DEFAULT 1.5,
+  fight_power BIGINT DEFAULT 0,
+  reborn_count INT DEFAULT 0,
+  gold BIGINT DEFAULT 100,
+  diamond INT DEFAULT 10,
+  energy INT DEFAULT 100,
+  max_energy INT DEFAULT 100,
+  spirit INT DEFAULT 50,
+  max_spirit INT DEFAULT 50,
+  mine_level INT DEFAULT 1,
+  mine_exp INT DEFAULT 0,
+  farm_level INT DEFAULT 1,
+  farm_exp INT DEFAULT 0,
+  forge_level INT DEFAULT 1,
+  forge_exp INT DEFAULT 0,
+  pvp_score INT DEFAULT 0,
+  pvp_star INT DEFAULT 0,
+  skill_point INT DEFAULT 0,
+  last_energy_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_spirit_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_bag (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  item_key VARCHAR(64) NOT NULL,
+  count INT DEFAULT 1,
+  is_bind TINYINT DEFAULT 0,
+  extra_json TEXT,
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_user (user_id)
+);
+
+CREATE TABLE IF NOT EXISTS user_equip (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  item_key VARCHAR(64) NOT NULL,
+  part VARCHAR(16) NOT NULL,
+  quality VARCHAR(16) DEFAULT 'WHITE',
+  strengthen_level INT DEFAULT 0,
+  base_attr_json TEXT,
+  extra_attr_json TEXT,
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_user (user_id)
+);
+
+CREATE TABLE IF NOT EXISTS user_skill (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  skill_key VARCHAR(64) NOT NULL,
+  level INT DEFAULT 1,
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_user_skill (user_id, skill_key)
+);
+
+CREATE TABLE IF NOT EXISTS farm_plot (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  plot_index INT NOT NULL,
+  seed_key VARCHAR(64),
+  plant_time DATETIME,
+  harvest_time DATETIME,
+  status VARCHAR(16) DEFAULT 'EMPTY',
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_user (user_id)
+);
+
+CREATE TABLE IF NOT EXISTS pvp_record (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  attacker_id BIGINT NOT NULL,
+  defender_id BIGINT NOT NULL,
+  attacker_name VARCHAR(32),
+  defender_name VARCHAR(32),
+  result VARCHAR(8) NOT NULL,
+  score_change INT DEFAULT 0,
+  battle_log TEXT,
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_attacker (attacker_id)
+);
+
+CREATE TABLE IF NOT EXISTS mail (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  title VARCHAR(128) NOT NULL,
+  content TEXT,
+  item_json TEXT,
+  is_read TINYINT DEFAULT 0,
+  is_claimed TINYINT DEFAULT 0,
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_user (user_id)
+);
+
+CREATE TABLE IF NOT EXISTS user_task (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  task_key VARCHAR(64) NOT NULL,
+  progress INT DEFAULT 0,
+  target INT DEFAULT 1,
+  is_complete TINYINT DEFAULT 0,
+  is_claimed TINYINT DEFAULT 0,
+  task_date DATE NOT NULL,
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_user_task_date (user_id, task_key, task_date)
+);
+
+CREATE TABLE IF NOT EXISTS user_achievement (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  achieve_key VARCHAR(64) NOT NULL,
+  progress INT DEFAULT 0,
+  target INT DEFAULT 1,
+  is_complete TINYINT DEFAULT 0,
+  is_claimed TINYINT DEFAULT 0,
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_user_achieve (user_id, achieve_key)
+);
+
+CREATE TABLE IF NOT EXISTS user_sign (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  sign_date DATE NOT NULL,
+  consecutive_days INT DEFAULT 1,
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_user_date (user_id, sign_date)
+);
+
+CREATE TABLE IF NOT EXISTS admin_user (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(32) NOT NULL UNIQUE,
+  password VARCHAR(128) NOT NULL,
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS announcement (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(128) NOT NULL,
+  content TEXT NOT NULL,
+  is_active TINYINT DEFAULT 1,
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS email_verification (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  email VARCHAR(128) NOT NULL,
+  code VARCHAR(6) NOT NULL,
+  purpose VARCHAR(32) NOT NULL DEFAULT 'BIND',
+  used TINYINT DEFAULT 0,
+  expire_time DATETIME NOT NULL,
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_user_purpose (user_id, purpose),
+  INDEX idx_email_code (email, code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS game_config (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  config_key VARCHAR(64) NOT NULL UNIQUE COMMENT '配置键名',
+  config_json LONGTEXT NOT NULL COMMENT '配置JSON数据',
+  description VARCHAR(256) DEFAULT NULL COMMENT '配置说明',
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='游戏配置表';

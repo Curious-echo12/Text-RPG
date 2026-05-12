@@ -1,0 +1,31 @@
+# === 敏感配置文件 ===
+# 包含真实密码的配置文件（使用 application-example.yml 作为模板）
+backend/src/main/resources/application.yml
+backend/src/main/resources/application-prod.yml
+deploy/application-prod.yml
+
+# === 构建产物 ===
+backend/target/
+frontend/node_modules/
+frontend/dist/
+
+# === IDE 文件 ===
+.idea/
+*.iml
+.vscode/settings.json
+
+# === Claude AI ===
+.claude/
+
+# === 系统文件 ===
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# === 日志 ===
+*.log
+
+# === SSH/密钥 ===
+*.pem
+*.key
